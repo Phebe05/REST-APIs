@@ -10,7 +10,12 @@ const bcrypt = require("bcryptjs");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5500",
+    credentials: true
+  }));
+  
 app.use(express.json());
 
 // Using environment variables for pool configuration
@@ -50,6 +55,17 @@ app.use(
   })
 );
 
+function requireLogin(req, res, next){
+  if(!req.session.userId){
+    return res.status(401).json({
+      error: "You must be logged in"
+    });
+  }
+
+  next();
+
+}
+
 app.get("/", (req, res) => {
   res.send("Student API is running!!!");
 });
@@ -68,7 +84,7 @@ app.get("/students", async (req, res) => {
 });
 
 //add a student(post)
-app.post("/students", async (req, res) => {
+app.post("/students", requireLogin, async (req, res) => {
   try {
     const { name, age } = req.body;
 
@@ -114,7 +130,7 @@ app.get("/students/:id", async (req, res) => {
 });
 
 //updating a student
-app.put("/students/:id", async (req, res) => {
+app.put("/students/:id", requireLogin, async (req, res) => {
     try {
         const { id } = req.params;
         const { name, age } = req.body;
@@ -141,7 +157,7 @@ app.put("/students/:id", async (req, res) => {
 });
 
 //deleting a student
-app.delete("/students/:id", async (req, res) => {
+app.delete("/students/:id", requireLogin, async (req, res) => {
     try {
         const { id } = req.params;
 
