@@ -38,7 +38,7 @@ A full-stack, session-authenticated web application for managing student records
 
 Before running the application, set up your PostgreSQL database (`student_database`) and execute the following SQL schema commands:
 
-### 1. Users Table
+### 1. Tables
 ```sql
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -65,7 +65,9 @@ ALTER TABLE "user_sessions" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NO
 
 CREATE INDEX "IDX_session_expire" ON "user_sessions" ("expire");
 
-GETTING STARTED
+---
+
+### Getting started
 1. Clone the Repository
 
 2. Backend Setup
@@ -103,3 +105,5 @@ Server running on port 5000
     Open index.html using Live Server (e.g., via VS Code Live Server extension at http://localhost:5500 or http://127.0.0.1:5500).
 
   NB:  Register a new user via curl or test logging in with an existing user.
+
+  ---
