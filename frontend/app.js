@@ -1,54 +1,164 @@
-async function loadStudents() {
+const API_URL = "http://localhost:5000";
 
-    const response = await fetch(
-        "http://localhost:5000/students"
-    );
+//login
+const loginForm = document.getElementById("loginForm");
 
-    const students = await response.json();
+loginForm.addEventListener("submit", async (event) => {
 
-    const list = document.getElementById("studentList");
+  event.preventDefault();
 
-    list.innerHTML = ""; // Clears old list items before rendering
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("loginMessage");
 
-    students.forEach(student => {
-
-        const item = document.createElement("li");
-
-        item.textContent =
-            `${student.name} - ${student.age}`;
-
-        list.appendChild(item);
+  try {
+    const response = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        username,
+        password,
+      }),
     });
+
+const data = await response.json();
+    if(!response.ok){
+        message.textContent = data.error;
+        return;
+    }
+
+    //when login is successful...
+
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+    loadStudents();
+
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Could not connect to the server";
+
+  }
+});
+
+//load the students
+
+async function loadStudents() {
+    try {
+        const response = await fetch(
+            `${API_URL}/students` , {
+                credentials: "include"
+            }
+        );
+
+        const students = await response.json();
+        const list = document.getElementById("studentList");
+        list.innerHTML = "";
+
+        students.forEach(student => {
+            const item = document.createElement("li");
+            item.innerHTML = `
+                ${student.name} - ${student.age}
+                <button onclick="deleteStudent(${student.id})">
+                    Delete
+                </button>
+            `;
+            list.appendChild(item);
+
+        });
+
+
+    } catch (error) {
+        console.error(error);
+    }
 }
 
+//add a student
+const studentForm = document.getElementById("studentForm");
+studentForm.addEventListener('submit', async (event) => {
 
-async function addStudent() {
+    event.preventDefault();
 
-    const name =
-        document.getElementById("name").value;
+    const name = document.getElementById("studentName").value;
+    const age = document.getElementById("studentAge").value;
+    const message = document.getElementById("studentMessage");
 
-    const age =
-        document.getElementById("age").value;
+    try {
+        const response = await fetch(
+            `${API_URL}/students`, 
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    name, age: Number(age)
+                })
+            }
+        );
 
-    const response = await fetch(
-        "http://localhost:5000/students",
+        const data = await response.json();
+        if(!response.ok){
+            message.textContent = data.error;
+            return;
+        }
+
+        message.textContent = "Student added successfully!";
+
+        studentForm.reset();
+
+        loadStudents();
+
+    } catch (error) {
+        console.error(error);
+    }
+    
+});
+
+//deleting a student - the fxn
+async function deleteStudent(id) {
+    try {
+        const response = await fetch(
+            `${API_URL}/students/${id}`,
+            {
+                method: "DELETE",
+                credentials: "include"
+            }
+        );
+
+        const data = await response.json();
+         if (!response.ok) {
+
+            alert(data.error);
+
+            return;
+        }
+        loadStudents();
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+//logging out
+document.getElementById("logoutButton").addEventListener("click", async () => {
+    await fetch(
+        `${API_URL}/logout`,
         {
             method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                name: name,
-                age: Number(age)
-            })
+            credentials: "include"
         }
     );
 
-    const student = await response.json();
 
-    console.log(student);
+        document.getElementById("dashboard")
+            .style.display = "none";
 
-    loadStudents();
-}
+        document.getElementById("loginPage")
+            .style.display = "block";
+});

@@ -1,29 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Student Management</title>
 </head>
 
 <body>
 
-    <h1>Students</h1>
+    <div id="loginPage">
 
-    <button onclick="loadStudents()">
-        Load Students
-    </button>
+        <h1>Student Management System</h1>
 
-    <ul id="studentList"></ul>
+        <h2>Login</h2>
 
-    <h2>Add Student</h2>
+        <form id="loginForm">
 
-    <input id="name" placeholder="Name">
-    <input id="age" type="number" placeholder="Age">
+            <input
+                type="text"
+                id="username"
+                placeholder="Username"
+                required
+            >
 
-    <button onclick="addStudent()">
-        Add Student
-    </button>
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                required
+            >
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+        <p id="loginMessage"></p>
+
+    </div>
+
+
+    <div id="dashboard" style="display: none;">
+
+        <h1>Student Dashboard</h1>
+
+        <button id="logoutButton">
+            Logout
+        </button>
+
+        <h2>Students</h2>
+
+        <button onclick="loadStudents()">
+            Refresh Students
+        </button>
+
+        <ul id="studentList"></ul>
+
+
+        <h2>Add Student</h2>
+
+        <form id="studentForm">
+
+            <input
+                type="text"
+                id="studentName"
+                placeholder="Student name"
+                required
+            >
+
+            <input
+                type="number"
+                id="studentAge"
+                placeholder="Age"
+                required
+            >
+
+            <button type="submit">
+                Add Student
+            </button>
+
+        </form>
+
+        <p id="studentMessage"></p>
+
+    </div>
+
 
     <script src="app.js"></script>
 
 </body>
+
 </html>

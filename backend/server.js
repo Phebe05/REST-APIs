@@ -2,20 +2,20 @@ require("dotenv").config(); // Reads variables from .env file
 
 const express = require("express");
 const cors = require("cors");
-const { Pool } = require("pg");  //helps express connect to db
+const { Pool } = require("pg"); //helps express connect to db
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
 const bcrypt = require("bcryptjs");
-
 
 const app = express();
 
 app.use(
   cors({
     origin: "http://localhost:5500",
-    credentials: true
-  }));
-  
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 
 // Using environment variables for pool configuration
@@ -50,20 +50,19 @@ app.use(
       httpOnly: true,
       sameSite: "lax",
       secure: false,
-      maxAge: 1000 * 60 * 60
-    }
-  })
+      maxAge: 1000 * 60 * 60,
+    },
+  }),
 );
 
-function requireLogin(req, res, next){
-  if(!req.session.userId){
+function requireLogin(req, res, next) {
+  if (!req.session.userId) {
     return res.status(401).json({
-      error: "You must be logged in"
+      error: "You must be logged in",
     });
   }
 
   next();
-
 }
 
 app.get("/", (req, res) => {
@@ -103,7 +102,6 @@ app.post("/students", requireLogin, async (req, res) => {
   }
 });
 
-
 // get a specific student
 app.get("/students/:id", async (req, res) => {
   try {
@@ -113,91 +111,90 @@ app.get("/students/:id", async (req, res) => {
       id,
     ]);
 
-    if (result.rows.length === 0){
+    if (result.rows.length === 0) {
       return res.status(404).json({
-           error: "Student not found"
+        error: "Student not found",
       });
     }
 
     res.json(result.rows[0]);
   } catch (error) {
     console.error(error);
-    
+
     res.status(500).json({
-       error: "Something went wrong"
-    })
+      error: "Something went wrong",
+    });
   }
 });
 
 //updating a student
 app.put("/students/:id", requireLogin, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, age } = req.body;
+  try {
+    const { id } = req.params;
+    const { name, age } = req.body;
 
-        const result = await pool.query(
-            "UPDATE students SET name = $1, age = $2 WHERE id = $3 RETURNING *",
-            [name, age, id]
-        );
+    const result = await pool.query(
+      "UPDATE students SET name = $1, age = $2 WHERE id = $3 RETURNING *",
+      [name, age, id],
+    );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                error: "Student not found"
-            });
-        }
-
-        res.json(result.rows[0]);
-    } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            error: "Something went wrong"
-        });
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Student not found",
+      });
     }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Something went wrong",
+    });
+  }
 });
 
 //deleting a student
 app.delete("/students/:id", requireLogin, async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        const result = await pool.query(
-            "DELETE FROM students WHERE id = $1 RETURNING *",
-            [id]
-        );
+    const result = await pool.query(
+      "DELETE FROM students WHERE id = $1 RETURNING *",
+      [id],
+    );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                error: "Student not found"
-            });
-        }
-
-        res.json({
-            message: "Student deleted",
-            student: result.rows[0]
-        });
-    } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            error: "Something went wrong"
-        });
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Student not found",
+      });
     }
+
+    res.json({
+      message: "Student deleted",
+      student: result.rows[0],
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Something went wrong",
+    });
+  }
 });
 
-app.post("/register", async (req, res ) => {
-
+app.post("/register", async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    if(!username || !password){
-      res.status(400).json({
-        error: "Username and Password are required fr"
+    if (!username || !password) {
+      return res.status(400).json({
+        error: "Username and Password are required fr",
       });
     }
 
     //hashing the password
-    const passwordHash = await bcrypt.hash( password, 12 );
+    const passwordHash = await bcrypt.hash(password, 12);
 
     //save the registered user
 
@@ -205,27 +202,25 @@ app.post("/register", async (req, res ) => {
       `INSERT INTO users (username, password_hash)
        VALUES ($1, $2)
        RETURNING id, username, created_at`,
-      [username, passwordHash]
+      [username, passwordHash],
     );
 
     res.status(201).json({
       message: "User created successfully",
-      user: result.rows[0]
+      user: result.rows[0],
     });
-     
-
   } catch (error) {
-      // PostgreSQL own unique constraint
+    // PostgreSQL own unique constraint
     if (error.code === "23505") {
       return res.status(409).json({
-        error: "Username already exists"
+        error: "Username already exists",
       });
     }
 
     console.error(error);
 
     res.status(500).json({
-      error: "Something went wrong"
+      error: "Something went wrong",
     });
   }
 });
@@ -236,33 +231,29 @@ app.post("/login", async (req, res) => {
 
     if (!username || !password) {
       return res.status(400).json({
-        error: "Username and password are required"
+        error: "Username and password are required",
       });
     }
 
     // Find the user
-    const result = await pool.query(
-      "SELECT * FROM users WHERE username = $1",
-      [username]
-    );
+    const result = await pool.query("SELECT * FROM users WHERE username = $1", [
+      username,
+    ]);
 
     if (result.rows.length === 0) {
       return res.status(401).json({
-        error: "Invalid username or password"
+        error: "Invalid username or password",
       });
     }
 
     const user = result.rows[0];
 
     // Compare the supplied password with the stored hash
-    const passwordMatches = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
+    const passwordMatches = await bcrypt.compare(password, user.password_hash);
 
     if (!passwordMatches) {
       return res.status(401).json({
-        error: "Invalid username or password"
+        error: "Invalid username or password",
       });
     }
 
@@ -273,17 +264,31 @@ app.post("/login", async (req, res) => {
       message: "Login successful",
       user: {
         id: user.id,
-        username: user.username
-      }
+        username: user.username,
+      },
     });
-
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
-      error: "Something went wrong"
+      error: "Something went wrong",
     });
   }
+});
+
+app.post("/logout", async (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      return res.status(500).json({
+        error: "Sorry :( , Could not log out",
+      });
+    }
+
+    res.clearCookie("connect.sid");
+    res.json({
+      message: "Logged out successfully!",
+    });
+  });
 });
 
 const PORT = process.env.PORT || 5000;
