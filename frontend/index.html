@@ -4,93 +4,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Student Management</title>
+    <!-- Google Fonts & Stylesheet -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div id="loginPage">
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="card-container">
+        <div class="card">
+            <h1>Student Management System</h1>
+            <h2>Welcome Back</h2>
 
-        <h1>Student Management System</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username" required>
+                </div>
 
-        <h2>Login</h2>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
 
-        <form id="loginForm">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
 
-            <input
-                type="text"
-                id="username"
-                placeholder="Username"
-                required
-            >
-
-            <input
-                type="password"
-                id="password"
-                placeholder="Password"
-                required
-            >
-
-            <button type="submit">
-                Login
-            </button>
-
-        </form>
-
-        <p id="loginMessage"></p>
-
+            <p id="loginMessage" class="message"></p>
+        </div>
     </div>
 
 
+    <!-- DASHBOARD -->
     <div id="dashboard" style="display: none;">
+        <header class="topbar">
+            <h1>Student Dashboard</h1>
+            <button id="logoutButton" class="btn btn-danger">Logout</button>
+        </header>
 
-        <h1>Student Dashboard</h1>
+        <main class="dashboard-grid">
+            <!-- Left Column: Student List -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>Student List</h2>
+                    <button onclick="loadStudents()" class="btn btn-secondary">Refresh</button>
+                </div>
+                <ul id="studentList" class="student-list"></ul>
+            </section>
 
-        <button id="logoutButton">
-            Logout
-        </button>
+            <!-- Right Column: Add Student Form -->
+            <section class="card">
+                <h2>Add New Student</h2>
+                <form id="studentForm">
+                    <div class="form-group">
+                        <label for="studentName">Student Name</label>
+                        <input type="text" id="studentName" placeholder="e.g. Jane Doe" required>
+                    </div>
 
-        <h2>Students</h2>
+                    <div class="form-group">
+                        <label for="studentAge">Age</label>
+                        <input type="number" id="studentAge" placeholder="e.g. 21" required>
+                    </div>
 
-        <button onclick="loadStudents()">
-            Refresh Students
-        </button>
+                    <button type="submit" class="btn btn-primary">Add Student</button>
+                </form>
 
-        <ul id="studentList"></ul>
-
-
-        <h2>Add Student</h2>
-
-        <form id="studentForm">
-
-            <input
-                type="text"
-                id="studentName"
-                placeholder="Student name"
-                required
-            >
-
-            <input
-                type="number"
-                id="studentAge"
-                placeholder="Age"
-                required
-            >
-
-            <button type="submit">
-                Add Student
-            </button>
-
-        </form>
-
-        <p id="studentMessage"></p>
-
+                <p id="studentMessage" class="message"></p>
+            </section>
+        </main>
     </div>
-
 
     <script src="app.js"></script>
-
 </body>
 
 </html>
